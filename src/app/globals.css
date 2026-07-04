@@ -1,0 +1,1043 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   个人博客 Design System v2
+   锚点: Stripe Press + UI/UX Pro Max 推荐
+   气质: 温润文学、书卷气、安静的奢华
+   融合: Bento Grid 布局 + 微妙渐变 + 玻璃质感
+   ============================================ */
+
+@theme inline {
+  /* ── 字体 ── */
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+  --font-display: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
+  --font-sans: 'DM Sans', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── ShadCN 颜色映射 ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── 品牌专用色 ── */
+  --color-ground: var(--sp-ground);
+  --color-ink: var(--sp-ink);
+  --color-muted-sp: var(--sp-muted);
+  --color-hairline: var(--sp-hairline);
+  --color-accent-teal: var(--sp-accent-teal);
+  --color-accent-sienna: var(--sp-accent-sienna);
+  --color-accent-blue: var(--sp-accent-blue);
+
+  /* ── 圆角: 结构保留直角, 卡片/组件引入柔角 ── */
+  --radius: 0.25rem;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  /* ── 阴影系统 (多层柔和阴影) ── */
+  --shadow-book: 0 24px 48px rgba(0, 0, 0, 0.18);
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glow-teal: 0 0 40px rgba(30, 94, 107, 0.12);
+  --shadow-glow-rust: 0 0 40px rgba(184, 85, 58, 0.1);
+
+  /* ── 字体大小 ── */
+  --text-display: clamp(3rem, 6vw, 5rem);
+  --text-h1: clamp(2.25rem, 4vw, 3.5rem);
+  --text-body: 1.1875rem;
+}
+
+/* ============================================
+   调色板 v2 —— 温润文学暖调
+   融合 Stripe Press 骨白 + UI/UX Pro Max 单色蓝
+   ============================================ */
+
+:root {
+  /* 基础色 */
+  --sp-ground: #faf7f2;
+  --sp-ink: #1c1c1a;
+  --sp-muted: #6b6658;
+  --sp-hairline: #d4cebb;
+  --sp-accent-teal: #1e5e6b;
+  --sp-accent-sienna: #b8553a;
+  --sp-accent-blue: #3b6fd4;
+  --sp-surface: #f3efe6;
+  --sp-surface-alt: #ede8db;
+
+  /* ShadCN 映射 */
+  --background: #faf7f2;
+  --foreground: #1c1c1a;
+  --card: #f3efe6;
+  --card-foreground: #1c1c1a;
+  --popover: #faf7f2;
+  --popover-foreground: #1c1c1a;
+  --primary: #1c1c1a;
+  --primary-foreground: #faf7f2;
+  --secondary: #f3efe6;
+  --secondary-foreground: #1c1c1a;
+  --muted: #ede8db;
+  --muted-foreground: #6b6658;
+  --accent: #1e5e6b;
+  --accent-foreground: #faf7f2;
+  --destructive: #b8553a;
+  --border: #d4cebb;
+  --input: #d4cebb;
+  --ring: #1e5e6b;
+  --chart-1: #1e5e6b;
+  --chart-2: #b8553a;
+  --chart-3: #6b6658;
+  --chart-4: #d4cebb;
+  --chart-5: #3b6fd4;
+  --sidebar: #f3efe6;
+  --sidebar-foreground: #1c1c1a;
+  --sidebar-primary: #1c1c1a;
+  --sidebar-primary-foreground: #faf7f2;
+  --sidebar-accent: #1e5e6b;
+  --sidebar-accent-foreground: #faf7f2;
+  --sidebar-border: #d4cebb;
+  --sidebar-ring: #1e5e6b;
+
+  /* ── Markdown 排版间距（可通过容器覆盖）── */
+  /* 间距 */
+  --md-h1-mt: 3rem;
+  --md-h1-mb: 1.5rem;
+  --md-h2-mt: 2.5rem;
+  --md-h2-mb: 1.25rem;
+  --md-h3-mt: 2rem;
+  --md-h3-mb: 1rem;
+  --md-p-mb: 1.25rem;
+  --md-p-leading: 1.625;
+  --md-li-ml: 1rem;
+  --md-li-mb: 0.25rem;
+  --md-ul-pl: 1.5rem;
+  --md-ul-mb: 1.25rem;
+  --md-ol-pl: 1.5rem;
+  --md-ol-mb: 1.25rem;
+  --md-blockquote-my: 1rem;
+  --md-hr-my: 3rem;
+  --md-pre-p: 1rem;
+  --md-pre-my: 1rem;
+  --md-img-my: 1rem;
+  --md-code-px: 0.375rem;
+  --md-code-py: 0.125rem;
+  /* 字号 */
+  --md-h1-font-size: inherit;
+  --md-h2-font-size: inherit;
+  --md-h3-font-size: inherit;
+  --md-p-font-size: inherit;
+  --md-li-font-size: inherit;
+  --md-blockquote-font-size: inherit;
+}
+
+.dark {
+  /* 暖调深色 —— 提高对比度 */
+  --sp-ground: #161513;
+  --sp-ink: #f5f0e5;
+  --sp-muted: #8c877a;
+  --sp-hairline: #36332d;
+  --sp-accent-teal: #6db8c4;
+  --sp-accent-sienna: #d48565;
+  --sp-accent-blue: #7ba4f0;
+  --sp-surface: #1f1d19;
+  --sp-surface-alt: #282520;
+
+  --background: #161513;
+  --foreground: #f5f0e5;
+  --card: #1f1d19;
+  --card-foreground: #f5f0e5;
+  --popover: #1f1d19;
+  --popover-foreground: #f5f0e5;
+  --primary: #f5f0e5;
+  --primary-foreground: #161513;
+  --secondary: #1f1d19;
+  --secondary-foreground: #f5f0e5;
+  --muted: #282520;
+  --muted-foreground: #8c877a;
+  --accent: #6db8c4;
+  --accent-foreground: #161513;
+  --destructive: #d48565;
+  --border: #36332d;
+  --input: #36332d;
+  --ring: #6db8c4;
+  --chart-1: #6db8c4;
+  --chart-2: #d48565;
+  --chart-3: #8c877a;
+  --chart-4: #36332d;
+  --chart-5: #7ba4f0;
+  --sidebar: #1f1d19;
+  --sidebar-foreground: #f5f0e5;
+  --sidebar-primary: #f5f0e5;
+  --sidebar-primary-foreground: #161513;
+  --sidebar-accent: #6db8c4;
+  --sidebar-accent-foreground: #161513;
+  --sidebar-border: #36332d;
+  --sidebar-ring: #6db8c4;
+}
+
+/* ── 管理后台独立主题（不受前台 .dark 影响）── */
+[data-admin-theme='light'] {
+  --sp-ground: #faf7f2;
+  --sp-ink: #1c1c1a;
+  --sp-muted: #6b6658;
+  --sp-hairline: #d4cebb;
+  --sp-accent-teal: #1e5e6b;
+  --sp-accent-sienna: #b8553a;
+  --sp-accent-blue: #3b6fd4;
+  --sp-surface: #f3efe6;
+  --sp-surface-alt: #ede8db;
+
+  --background: #faf7f2;
+  --foreground: #1c1c1a;
+  --card: #f3efe6;
+  --card-foreground: #1c1c1a;
+  --popover: #faf7f2;
+  --popover-foreground: #1c1c1a;
+  --primary: #1c1c1a;
+  --primary-foreground: #faf7f2;
+  --secondary: #f3efe6;
+  --secondary-foreground: #1c1c1a;
+  --muted: #ede8db;
+  --muted-foreground: #6b6658;
+  --accent: #1e5e6b;
+  --accent-foreground: #faf7f2;
+  --destructive: #b8553a;
+  --border: #d4cebb;
+  --input: #d4cebb;
+  --ring: #1e5e6b;
+  --chart-1: #1e5e6b;
+  --chart-2: #b8553a;
+  --chart-3: #6b6658;
+  --chart-4: #d4cebb;
+  --chart-5: #3b6fd4;
+  --sidebar: #f3efe6;
+  --sidebar-foreground: #1c1c1a;
+  --sidebar-primary: #1c1c1a;
+  --sidebar-primary-foreground: #faf7f2;
+  --sidebar-accent: #1e5e6b;
+  --sidebar-accent-foreground: #faf7f2;
+  --sidebar-border: #d4cebb;
+  --sidebar-ring: #1e5e6b;
+}
+
+[data-admin-theme='dark'] {
+  --sp-ground: #161513;
+  --sp-ink: #f5f0e5;
+  --sp-muted: #8c877a;
+  --sp-hairline: #36332d;
+  --sp-accent-teal: #6db8c4;
+  --sp-accent-sienna: #d48565;
+  --sp-accent-blue: #7ba4f0;
+  --sp-surface: #1f1d19;
+  --sp-surface-alt: #282520;
+
+  --background: #161513;
+  --foreground: #f5f0e5;
+  --card: #1f1d19;
+  --card-foreground: #f5f0e5;
+  --popover: #1f1d19;
+  --popover-foreground: #f5f0e5;
+  --primary: #f5f0e5;
+  --primary-foreground: #161513;
+  --secondary: #1f1d19;
+  --secondary-foreground: #f5f0e5;
+  --muted: #282520;
+  --muted-foreground: #8c877a;
+  --accent: #6db8c4;
+  --accent-foreground: #161513;
+  --destructive: #d48565;
+  --border: #36332d;
+  --input: #36332d;
+  --ring: #6db8c4;
+  --chart-1: #6db8c4;
+  --chart-2: #d48565;
+  --chart-3: #8c877a;
+  --chart-4: #36332d;
+  --chart-5: #7ba4f0;
+  --sidebar: #1f1d19;
+  --sidebar-foreground: #f5f0e5;
+  --sidebar-primary: #f5f0e5;
+  --sidebar-primary-foreground: #161513;
+  --sidebar-accent: #6db8c4;
+  --sidebar-accent-foreground: #161513;
+  --sidebar-border: #36332d;
+  --sidebar-ring: #6db8c4;
+}
+
+/* ============================================
+   全局基础 v2
+   ============================================ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-[var(--sp-ground)] text-[var(--sp-ink)] font-serif;
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* 页面级微噪点纹理 + 环境光 */
+    position: relative;
+  }
+
+  /* 全局噪点纹理 —— 模拟纸张触感 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  /* 环境光 —— 极柔和的全局暖光 */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background:
+      radial-gradient(ellipse at 15% 0%, rgba(30, 94, 107, 0.025) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, rgba(184, 85, 58, 0.02) 0%, transparent 50%);
+  }
+
+  html {
+    @apply font-serif;
+    scrollbar-color: rgba(0,0,0,0.18) transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+  }
+
+  /* ── 标题使用 Display 衬线 ── */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  /* ── 正文段落 ── */
+  p {
+    margin-bottom: 1.25em;
+  }
+
+  /* ── 链接 ── */
+  a {
+    color: var(--sp-accent-teal);
+    transition: opacity 0.3s ease, color 0.3s ease;
+  }
+
+  a:hover {
+    opacity: 0.75;
+  }
+
+  /* ── 选中 ── */
+  ::selection {
+    background-color: var(--sp-accent-teal);
+    color: var(--sp-ground);
+  }
+
+  /* ── 无衬线 UI 元素 ── */
+  nav,
+  button,
+  input,
+  textarea,
+  select,
+  label,
+  figcaption,
+  .ui-sans {
+    font-family: var(--font-sans);
+  }
+
+  /* ── 滚动条 — 悬浮式，透明轨道铺在内容之上 ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.28);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.05);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.22);
+  }
+}
+
+/* ============================================
+   高级质感效果 v2
+   ============================================ */
+
+/* ── 布纹纹理叠加 ── */
+.textile-overlay {
+  position: relative;
+}
+
+.textile-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h64v64H0z' fill='none'/%3E%3Cpath d='M0 32h64M32 0v64M16 0v64M48 0v64M0 16h64M0 48h64' stroke='%231c1c1a' stroke-width='0.3' opacity='.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* ── 极光渐变背景 ── */
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(30, 94, 107, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 80% at 80% 60%, rgba(184, 85, 58, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(59, 111, 212, 0.03) 0%, transparent 50%);
+  animation: aurora-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  0% {
+    opacity: 0.6;
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translate(1%, -0.5%);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1.02) translate(-0.5%, 0.5%);
+  }
+}
+
+/* ── 玻璃质感卡片 ── */
+.glass-card {
+  background: rgba(243, 239, 230, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 206, 187, 0.5);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(243, 239, 230, 0.75);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(212, 206, 187, 0.7);
+}
+
+.dark .glass-card {
+  background: rgba(31, 29, 25, 0.6);
+  border-color: rgba(54, 51, 45, 0.5);
+}
+
+.dark .glass-card:hover {
+  background: rgba(31, 29, 25, 0.75);
+  border-color: rgba(54, 51, 45, 0.7);
+}
+
+/* ── Bento Grid 卡片 ── */
+.bento-card {
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-hairline);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
+}
+
+.bento-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--sp-accent-teal);
+}
+
+.dark .bento-card {
+  background: var(--sp-surface);
+  border-color: var(--sp-hairline);
+}
+
+/* ── Ken Burns 慢镜头 ── */
+.ken-burns {
+  overflow: hidden;
+}
+
+.ken-burns img,
+.ken-burns > * {
+  animation: ken-burns-zoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes ken-burns-zoom {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.08) translate(-1%, -0.5%);
+  }
+}
+
+/* ── 3D 书籍卡片视角 ── */
+.book-card-3d {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-book);
+}
+
+.book-card-3d:hover {
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.22);
+}
+
+/* ── Pull Quote ── */
+.pull-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.3;
+  color: var(--sp-muted);
+  border-left: 2px solid var(--sp-accent-teal);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* ── 渐变文字 ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--sp-accent-teal) 0%, var(--sp-accent-blue) 50%, var(--sp-accent-sienna) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 发光圆点状态指示器 ── */
+.glow-dot {
+  position: relative;
+  display: inline-flex;
+  height: 8px;
+  width: 8px;
+}
+
+.glow-dot::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.3;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.8); }
+}
+
+/* ── 站点简介 Markdown 内容 ── */
+.site-intro-content {
+  --md-p-mb: 1.25rem;
+  --md-p-leading: 1.75;
+  --md-ul-mb: 1.25rem;
+  --md-ul-pl: 1.5rem;
+  --md-ol-mb: 1.25rem;
+  --md-ol-pl: 1.5rem;
+  --md-li-mb: 0.25rem;
+  --md-hr-my: 2rem;
+  --md-li-font-size: 1.125rem;
+  --md-p-font-size: 1.125rem;
+}
+.site-intro-content strong {
+  font-weight: 600;
+  color: var(--sp-ink);
+}
+.site-intro-content a {
+  color: var(--sp-accent-teal);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.site-intro-content a:hover {
+  opacity: 0.7;
+}
+.site-intro-content blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  border-left: 2px solid var(--sp-accent-teal);
+  padding-left: 1.5rem;
+  color: var(--sp-muted);
+}
+
+/* ── 简历 Markdown 内容（网页展示） ── */
+.resume-markdown {
+  --md-p-mb: 1em;
+  --md-p-leading: var(--resume-line-height, 1.75);
+  --md-ul-mb: 1em;
+  --md-ul-pl: 1.5rem;
+  --md-ol-mb: 1em;
+  --md-ol-pl: 1.5rem;
+  --md-li-mb: 0.25rem;
+  --md-li-font-size: var(--resume-body-font-size, 1.125rem);
+  --md-p-font-size: var(--resume-body-font-size, 1.125rem);
+  --md-h3-mt: 1.5em;
+  --md-h3-mb: 0.5em;
+  --md-blockquote-my: 1em;
+  --md-hr-my: 1.5rem;
+  --md-pre-p: 1rem;
+  --md-pre-my: 1em;
+  --md-img-my: 1em;
+}
+.resume-markdown p {
+  font-size: var(--resume-body-font-size, 1.125rem);
+}
+.resume-markdown strong {
+  font-weight: 600;
+  color: var(--sp-ink);
+}
+.resume-markdown em {
+  font-style: italic;
+}
+.resume-markdown a {
+  color: var(--sp-accent-teal);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.resume-markdown a:hover {
+  opacity: 0.7;
+}
+.resume-markdown blockquote {
+  border-left: 2px solid var(--sp-accent-teal);
+  padding-left: 1rem;
+  color: var(--sp-muted);
+  font-style: italic;
+}
+.resume-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--sp-surface);
+  color: var(--sp-accent-sienna);
+}
+.resume-markdown pre {
+  background: var(--sp-surface);
+  overflow-x: auto;
+  border: 1px solid var(--sp-hairline);
+  font-size: 0.875rem;
+}
+.resume-markdown pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+.resume-markdown h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+.resume-markdown hr {
+  border: none;
+  border-top: 1px solid var(--sp-hairline);
+}
+.resume-markdown img {
+  max-width: 100%;
+  border: 1px solid var(--sp-hairline);
+}
+
+/* ── A4 简历 Markdown 内容 ── */
+.a4-markdown {
+  color: #1a1a18;
+  --md-p-mb: 0.5em;
+  --md-p-leading: var(--a4-line-height, 1.5);
+  --md-ul-mb: 0.5em;
+  --md-ul-pl: 1.2rem;
+  --md-ol-mb: 0.5em;
+  --md-ol-pl: 1.2rem;
+  --md-li-mb: 0.15rem;
+  --md-li-font-size: var(--a4-body-font-size, 0.875rem);
+  --md-p-font-size: var(--a4-body-font-size, 0.875rem);
+  --md-pre-p: 0.75rem;
+  --md-pre-my: 0.5em;
+}
+.a4-markdown p {
+  font-size: var(--a4-body-font-size, 0.875rem);
+  color: #1a1a18;
+  margin-bottom: 0.35em;
+}
+.a4-markdown strong {
+  font-weight: 600;
+  color: #1a1a18;
+}
+.a4-markdown em {
+  font-style: italic;
+  color: #1a1a18;
+}
+.a4-markdown a {
+  color: #1b4b5a;
+  text-decoration: none;
+}
+.a4-markdown blockquote {
+  color: #1a1a18;
+}
+.a4-markdown li {
+  color: #1a1a18;
+}
+.a4-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: #eee;
+}
+.a4-markdown pre {
+  background: #f5f5f5;
+  overflow-x: auto;
+  font-size: 0.8rem;
+}
+
+/* ── 管理后台 Markdown 预览 ── */
+.prose-custom {
+  color: var(--sp-ink);
+  font-family: var(--font-serif);
+}
+.prose-custom strong {
+  font-weight: 600;
+  color: var(--sp-ink);
+}
+.prose-custom a {
+  color: var(--sp-accent-teal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-custom a:hover {
+  opacity: 0.7;
+}
+.prose-custom blockquote {
+  border-left: 2px solid var(--sp-accent-teal);
+  padding-left: 1.5rem;
+  font-style: italic;
+  color: var(--sp-muted);
+}
+.prose-custom code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--sp-surface);
+  color: var(--sp-accent-sienna);
+}
+.prose-custom pre {
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-hairline);
+  font-size: 0.875rem;
+  overflow-x: auto;
+}
+.prose-custom pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+.prose-custom h1,
+.prose-custom h2,
+.prose-custom h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.prose-custom img {
+  max-width: 100%;
+  border: 1px solid var(--sp-hairline);
+}
+
+/* ── A4 打印样式 ── */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  /* 全局重置 */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 隐藏噪点纹理和环境光叠加层 */
+  body::before,
+  body::after {
+    display: none !important;
+  }
+
+  /* 隐藏网页 UI 元素（导航、页脚、工具栏等） */
+  nav,
+  footer,
+  .no-print,
+  [data-view-toggle] {
+    display: none !important;
+  }
+
+  /* A4 简历页面 —— 所有页面尺寸完全一致 */
+  .a4-resume-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 14mm 18mm !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    display: block !important;
+  }
+  .a4-resume-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* 外层包装器：屏幕上的间距在打印时清零，防止多余空白页 */
+  .a4-resume-outer {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+}
+
+/* ── 挂边注释 ── */
+.margin-note {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--sp-muted);
+  line-height: 1.4;
+}
+
+/* ============================================
+   拾曲页 —— 复古唱片美学
+   ============================================ */
+
+/* ── 黑胶唱片旋转动画（播放中）── */
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-spinning {
+  animation: vinyl-spin 8s linear infinite;
+}
+
+/* ── 唱片封套卡片悬停效果 ── */
+.vintage-card {
+  background: linear-gradient(
+    135deg,
+    var(--sp-surface) 0%,
+    var(--sp-surface-alt) 100%
+  );
+  border: 1px solid var(--sp-hairline);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease;
+}
+
+.vintage-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 32px rgba(184, 85, 58, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  border-color: rgba(184, 85, 58, 0.2);
+}
+
+.dark .vintage-card {
+  background: linear-gradient(
+    135deg,
+    var(--sp-surface) 0%,
+    rgba(40, 37, 32, 0.8) 100%
+  );
+  border-color: var(--sp-hairline);
+}
+
+.dark .vintage-card:hover {
+  border-color: rgba(212, 133, 101, 0.2);
+}
+
+/* ── 唱片同心圆装饰 ── */
+.vinyl-rings {
+  position: relative;
+}
+
+.vinyl-rings::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--sp-hairline);
+  opacity: 0.3;
+}
+
+/* ── 复古搜索栏发光 ── */
+.vintage-search-glow {
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+.vintage-search-glow:focus-within {
+  box-shadow:
+    0 0 32px rgba(184, 85, 58, 0.1),
+    0 0 64px rgba(184, 85, 58, 0.04);
+}
+
+/* ── 音乐进度条拖拽手柄 ── */
+.music-progress-thumb::-webkit-slider-thumb {
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: var(--sp-accent-sienna);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(184, 85, 58, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.music-progress-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ── 播放状态脉冲指示器 ── */
+.playing-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.playing-indicator span {
+  width: 3px;
+  background: var(--sp-accent-sienna);
+  border-radius: 2px;
+  animation: indicator-wave 0.8s ease-in-out infinite;
+}
+
+.playing-indicator span:nth-child(1) { height: 60%; }
+.playing-indicator span:nth-child(2) { height: 100%; animation-delay: 0.15s; }
+.playing-indicator span:nth-child(3) { height: 40%; animation-delay: 0.3s; }
+.playing-indicator span:nth-child(4) { height: 80%; animation-delay: 0.45s; }
+
+@keyframes indicator-wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.4); }
+}
+
+/* ── 搜索结果渐入 ── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 唱片沟槽纹理（用于占位图）── */
+.vinyl-groove {
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      transparent 0,
+      transparent 8px,
+      rgba(0,0,0,0.03) 8px,
+      rgba(0,0,0,0.03) 9px
+    );
+}
+
+/* ── 暖调琥珀文字渐变 ── */
+.gradient-text-warm {
+  background: linear-gradient(
+    135deg,
+    var(--sp-accent-sienna) 0%,
+    #d4a574 50%,
+    var(--sp-accent-sienna) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
