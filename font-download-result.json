@@ -1,0 +1,152 @@
+[
+  {
+    "fontName": "DM Sans",
+    "style": "normal",
+    "weight": "400",
+    "fileName": "/fonts/dm-sans-normal-400.ttf"
+  },
+  {
+    "fontName": "DM Sans",
+    "style": "normal",
+    "weight": "500",
+    "fileName": "/fonts/dm-sans-normal-500.ttf"
+  },
+  {
+    "fontName": "DM Sans",
+    "style": "normal",
+    "weight": "600",
+    "fileName": "/fonts/dm-sans-normal-600.ttf"
+  },
+  {
+    "fontName": "DM Sans",
+    "style": "normal",
+    "weight": "700",
+    "fileName": "/fonts/dm-sans-normal-700.ttf"
+  },
+  {
+    "fontName": "JetBrains Mono",
+    "style": "normal",
+    "weight": "400",
+    "fileName": "/fonts/jetbrains-mono-normal-400.ttf"
+  },
+  {
+    "fontName": "JetBrains Mono",
+    "style": "normal",
+    "weight": "500",
+    "fileName": "/fonts/jetbrains-mono-normal-500.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "italic",
+    "weight": "400",
+    "fileName": "/fonts/playfair-display-italic-400.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "italic",
+    "weight": "500",
+    "fileName": "/fonts/playfair-display-italic-500.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "italic",
+    "weight": "600",
+    "fileName": "/fonts/playfair-display-italic-600.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "italic",
+    "weight": "800",
+    "fileName": "/fonts/playfair-display-italic-800.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "italic",
+    "weight": "900",
+    "fileName": "/fonts/playfair-display-italic-900.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "400",
+    "fileName": "/fonts/playfair-display-normal-400.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "500",
+    "fileName": "/fonts/playfair-display-normal-500.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "600",
+    "fileName": "/fonts/playfair-display-normal-600.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "700",
+    "fileName": "/fonts/playfair-display-normal-700.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "800",
+    "fileName": "/fonts/playfair-display-normal-800.ttf"
+  },
+  {
+    "fontName": "Playfair Display",
+    "style": "normal",
+    "weight": "900",
+    "fileName": "/fonts/playfair-display-normal-900.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "italic",
+    "weight": "400",
+    "fileName": "/fonts/source-serif-4-italic-400.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "italic",
+    "weight": "500",
+    "fileName": "/fonts/source-serif-4-italic-500.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "italic",
+    "weight": "600",
+    "fileName": "/fonts/source-serif-4-italic-600.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "italic",
+    "weight": "700",
+    "fileName": "/fonts/source-serif-4-italic-700.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "normal",
+    "weight": "400",
+    "fileName": "/fonts/source-serif-4-normal-400.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "normal",
+    "weight": "500",
+    "fileName": "/fonts/source-serif-4-normal-500.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "normal",
+    "weight": "600",
+    "fileName": "/fonts/source-serif-4-normal-600.ttf"
+  },
+  {
+    "fontName": "Source Serif 4",
+    "style": "normal",
+    "weight": "700",
+    "fileName": "/fonts/source-serif-4-normal-700.ttf"
+  }
+]

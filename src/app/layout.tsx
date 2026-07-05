@@ -1,42 +1,12 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Source_Serif_4, DM_Sans, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from '@/components/layout/theme-provider'
 import { LayoutShell } from '@/components/layout/layout-shell'
 import { SiteConfigProvider } from '@/components/layout/site-config-provider'
 import { MarkdownFormatStyles } from '@/components/layout/markdown-format-styles'
 import { MusicProvider } from '@/components/music/music-context'
 import { getAboutConfigCached } from '@/lib/about-config'
+import { playfairDisplay, sourceSerif4, dmSans, jetbrainsMono } from '@/lib/fonts'
 import './globals.css'
-
-const playfairDisplay = Playfair_Display({
-  variable: '--font-display',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
-  style: ['normal', 'italic'],
-  display: 'swap',
-})
-
-const sourceSerif4 = Source_Serif_4({
-  variable: '--font-serif',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  display: 'swap',
-})
-
-const dmSans = DM_Sans({
-  variable: '--font-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  display: 'swap',
-})
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAboutConfigCached()
