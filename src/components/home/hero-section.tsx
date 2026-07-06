@@ -89,8 +89,8 @@ export function HeroSection({
                   key={bgPhoto}
                   src={bgPhoto}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  style={{ filter: 'blur(12px) saturate(1.3)', transform: 'scale(1.08)' }}
+                  className="absolute inset-0 h-full w-full object-cover hero-bg-img"
+                  style={{ filter: 'blur(12px) saturate(1.3)' }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

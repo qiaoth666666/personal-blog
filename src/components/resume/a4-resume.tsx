@@ -49,16 +49,42 @@ const pageStyle: React.CSSProperties = {
   flexShrink: 0,
 }
 
+// ── 响应式缩放 Hook ──
+function useResponsiveScale(ref: React.RefObject<HTMLDivElement | null>, pageWidthPx: number): number {
+  const [scale, setScale] = useState(1)
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width
+      if (w && w > 0) {
+        // 两侧各留 8px 呼吸空间
+        setScale(Math.min(1, (w - 16) / pageWidthPx))
+      }
+    })
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [pageWidthPx])
+
+  return scale
+}
+
 /**
- * A4 简历 —— 精确多页分页
+ * A4 简历 —— 精确多页分页 + 移动端等比缩放
  *
  * - 每页固定 210mm × 297mm
  * - 所有页面尺寸、边距、阴影完全一致
  * - 模块间分割线可调节长度/粗细
+ * - 移动端自动缩放到屏幕宽度，保证完整显示 A4 版式
  */
 export function A4Resume({ profile, education, skills, projects, certificates, introContent, skillContent, styleConfig }: A4ResumeProps) {
+  const outerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [pages, setPages] = useState(1)
+  const scale = useResponsiveScale(outerRef, PAGE_WIDTH_PX)
 
   // 测内容总高度 → 算页数
   useLayoutEffect(() => {
@@ -99,33 +125,45 @@ export function A4Resume({ profile, education, skills, projects, certificates, i
 
   // 如果只有 1 页，直接渲染
   if (pages <= 1) {
+    const scaledW = PAGE_WIDTH_PX * scale
+    const scaledH = PAGE_HEIGHT_PX * scale
     return (
-      <div className="flex justify-center a4-resume-outer" style={{ padding: '12px 0 96px 0' }}>
-        <div className="a4-resume-page" style={pageStyle}>
-          <div ref={contentRef}>{content}</div>
+      <div ref={outerRef} className="flex justify-center a4-resume-outer" style={{ padding: '12px 0 96px 0', width: '100%', overflow: 'visible' }}>
+        <div className="a4-scale-container" style={{ width: `${scaledW}px`, height: `${scaledH}px`, position: 'relative', flexShrink: 0 }}>
+          <div className="a4-resume-page" style={{ ...pageStyle, position: 'absolute', top: 0, left: 0, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+            <div ref={contentRef}>{content}</div>
+          </div>
         </div>
       </div>
     )
   }
 
-  // 多页：每个页面用 mm 单位精确裁剪，避免 px 换算误差导致内容重复
+  // 多页：每页缩放后堆叠
+  const scaledGap = Math.max(8, 48 * scale)
+  const scaledW = PAGE_WIDTH_PX * scale
+  const scaledH = PAGE_HEIGHT_PX * scale
+
   return (
-    <div className="flex flex-col items-center a4-resume-outer" style={{ gap: '48px', padding: '12px 0 96px 0' }}>
-      {Array.from({ length: pages }, (_, i) => (
-        <div key={i} className="a4-resume-page" style={pageStyle}>
-          {/* 内层裁剪容器：高度=内容区，overflow 精确裁剪 */}
-          <div style={{ height: `${CONTENT_AREA_MM}mm`, overflow: 'hidden' }}>
-            <div
-              ref={i === 0 ? contentRef : undefined}
-              style={{
-                transform: `translateY(-${i * CONTENT_AREA_MM}mm)`,
-              }}
-            >
-              {content}
+    <div ref={outerRef} className="flex flex-col items-center a4-resume-outer" style={{ padding: '12px 0 96px 0', width: '100%', overflow: 'visible' }}>
+      <div className="flex flex-col items-center" style={{ gap: `${scaledGap}px` }}>
+        {Array.from({ length: pages }, (_, i) => (
+          <div key={i} className="a4-scale-container" style={{ width: `${scaledW}px`, height: `${scaledH}px`, position: 'relative', flexShrink: 0 }}>
+            <div className="a4-resume-page" style={{ ...pageStyle, position: 'absolute', top: 0, left: 0, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+              {/* 内层裁剪容器：高度=内容区，overflow 精确裁剪 */}
+              <div style={{ height: `${CONTENT_AREA_MM}mm`, overflow: 'hidden' }}>
+                <div
+                  ref={i === 0 ? contentRef : undefined}
+                  style={{
+                    transform: `translateY(-${i * CONTENT_AREA_MM}mm)`,
+                  }}
+                >
+                  {content}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

@@ -45,13 +45,15 @@ export async function POST(request: Request) {
       .setExpirationTime('24h')
       .sign(new TextEncoder().encode(secret))
 
-    const isProduction = process.env.NODE_ENV === 'production'
+    // 只在真正走 HTTPS 时才设置 secure（兼容 HTTP 部署）
+    const isSecure = process.env.NODE_ENV === 'production'
+      && new URL(request.url).protocol === 'https:'
 
     // 设置 cookie
     const cookieStore = await cookies()
     cookieStore.set('admin_token', token, {
       httpOnly: true,
-      secure: isProduction,
+      secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24, // 24h
