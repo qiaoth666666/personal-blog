@@ -100,8 +100,8 @@ export function HeroSection({
             ) : (
               <div className="absolute inset-0 bg-[var(--sp-ground)]" />
             )}
-            {/* 底部渐变 —— 平滑过渡到摄影集 */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--sp-ground)]/0 via-[var(--sp-ground)]/0 to-[var(--sp-ground)]" />
+            {/* 底部渐变 —— 仅底部保留过渡，其余三边去除泛白光 */}
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--sp-ground)] to-[var(--sp-ground)]/0" />
           </div>,
           document.body,
         )}

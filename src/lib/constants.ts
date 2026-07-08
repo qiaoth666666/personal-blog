@@ -41,10 +41,10 @@ export const TECH_STACK = [
 export const NAV_LINKS = [
   { href: '/', label: '首页' },
   { href: '/resume', label: '简历' },
+  { href: '/music', label: '拾曲' },
   { href: '/software', label: '软库' },
   { href: '/articles', label: '文章' },
   { href: '/guestbook', label: '留言' },
-  { href: '/music', label: '拾曲' },
   { href: '/friends', label: '友链' },
   { href: '/about', label: '关于' },
 ] as const

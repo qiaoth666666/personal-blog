@@ -19,6 +19,7 @@ export function SongDetailPanel() {
     seek,
   } = useMusic()
 
+  const [panelMode, setPanelMode] = useState<'vinyl' | 'lyric'>('vinyl')
   const [lyrics, setLyrics] = useState<LyricLine[]>([])
   const [lyricsLoading, setLyricsLoading] = useState(false)
   const [coverUrl, setCoverUrl] = useState('')
@@ -105,8 +106,31 @@ export function SongDetailPanel() {
           {/* 背景 */}
           <div className="relative h-full w-full bg-[var(--sp-surface)] overflow-hidden">
 
-            {/* 关闭按钮（向下箭头，右侧方形） */}
-            <div className="absolute top-4 right-4 z-10">
+            {/* 模式切换（仅手机端显示）+ 关闭按钮 */}
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+              {/* 唱片/歌词切换 —— 仅手机端可见 */}
+              <div className="md:hidden flex overflow-hidden rounded-lg border border-[var(--sp-hairline)]/30 bg-[var(--sp-surface)] text-xs">
+                <button
+                  onClick={() => setPanelMode('vinyl')}
+                  className={`px-3 py-1.5 font-medium transition-colors cursor-pointer ${
+                    panelMode === 'vinyl'
+                      ? 'bg-[var(--sp-accent-sienna)] text-white'
+                      : 'text-[var(--sp-muted)] hover:text-[var(--sp-ink)]'
+                  }`}
+                >
+                  唱片
+                </button>
+                <button
+                  onClick={() => setPanelMode('lyric')}
+                  className={`px-3 py-1.5 font-medium transition-colors cursor-pointer ${
+                    panelMode === 'lyric'
+                      ? 'bg-[var(--sp-accent-sienna)] text-white'
+                      : 'text-[var(--sp-muted)] hover:text-[var(--sp-ink)]'
+                  }`}
+                >
+                  歌词
+                </button>
+              </div>
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={closeDetailPanel}
@@ -116,41 +140,43 @@ export function SongDetailPanel() {
               </motion.button>
             </div>
 
-            {/* 主内容：左对齐，让黑胶靠左 */}
+            {/* 主内容 */}
             <div className="flex h-full flex-col md:flex-row items-start gap-8 md:gap-10 px-6 py-8 md:py-10 overflow-y-auto">
-              {/* 左侧：黑胶唱片机 */}
-              <div className="shrink-0 flex flex-col items-center gap-3 md:w-[500px] md:ml-60 md:mt-16">
-                <VinylPlayer
-                  coverUrl={coverUrl}
-                  isPlaying={isPlaying && (nowPlaying?.url ? true : false)}
-                  onTogglePlay={togglePlay}
-                  progress={duration > 0 ? currentTime / duration : 0}
-                />
+              {/* 黑胶唱片机：手机端跟随 panelMode，桌面端始终显示 */}
+              <div className={`${panelMode === 'lyric' ? 'hidden' : 'flex'} md:flex w-full flex-col items-center justify-center md:w-[500px] md:ml-60 md:mt-16 min-h-[60vh] md:min-h-0`}>
+                  <div className="scale-[0.6] sm:scale-[0.7] md:scale-100 origin-center">
+                    <VinylPlayer
+                      coverUrl={coverUrl}
+                      isPlaying={isPlaying && (nowPlaying?.url ? true : false)}
+                      onTogglePlay={togglePlay}
+                      progress={duration > 0 ? currentTime / duration : 0}
+                    />
+                  </div>
 
-                {/* 歌曲信息 */}
-                <div className="text-center">
-                  <p className="text-base font-semibold text-[var(--sp-ink)] truncate max-w-[280px]" style={{ fontFamily: 'var(--font-sans)' }}>
-                    {nowPlaying.name}
-                  </p>
-                  <p className="text-sm text-[var(--sp-muted)] truncate max-w-[280px]" style={{ fontFamily: 'var(--font-serif)' }}>
-                    {nowPlaying.singer}
-                  </p>
+                  {/* 歌曲信息 */}
+                  <div className="text-center -mt-8 md:mt-3">
+                    <p className="text-base font-semibold text-[var(--sp-ink)] truncate max-w-[280px]" style={{ fontFamily: 'var(--font-sans)' }}>
+                      {nowPlaying.name}
+                    </p>
+                    <p className="text-sm text-[var(--sp-muted)] truncate max-w-[280px]" style={{ fontFamily: 'var(--font-serif)' }}>
+                      {nowPlaying.singer}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* 右侧：歌词（限制宽度，不让太宽） */}
-              <div className="flex-1 min-h-0 w-full md:max-w-md">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <h3
-                    className="mb-5 text-sm font-semibold tracking-widest uppercase text-[var(--sp-muted)]/50 text-left"
-                    style={{ fontFamily: 'var(--font-sans)' }}
+              {/* 歌词：手机端跟随 panelMode，桌面端始终显示 */}
+              <div className={`${panelMode === 'vinyl' ? 'hidden' : 'block'} md:block flex-1 min-h-0 w-full max-w-2xl mx-auto`}>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    {nowPlaying.name}
-                  </h3>
+                    <h3
+                      className="mb-5 text-sm font-semibold tracking-widest uppercase text-[var(--sp-muted)]/50 text-center"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                    >
+                      {nowPlaying.name}
+                    </h3>
 
                   {lyricsLoading ? (
                     <div className="flex items-center justify-center py-20">
@@ -196,7 +222,7 @@ export function SongDetailPanel() {
                   )}
                 </motion.div>
               </div>
-            </div>
+          </div>
           </div>
         </motion.div>
       )}

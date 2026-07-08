@@ -36,7 +36,7 @@ export function ResumeViewSwitcher({
   styleConfig,
   skillContent,
 }: ResumeViewSwitcherProps) {
-  const [view, setView] = useState<ResumeView>('web')
+  const [view, setView] = useState<ResumeView>('a4')
   const [mounted, setMounted] = useState(false)
   const printingRef = useRef(false)
 

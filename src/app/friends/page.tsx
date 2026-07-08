@@ -27,7 +27,7 @@ export default async function FriendsPage() {
   let friendCount = 0
 
   try {
-    const allApproved = await cache('friends:list', 120, () =>
+    const allApproved = await cache('friends:list', 10, () =>
       query<Pick<FriendLink, 'id' | 'name' | 'url' | 'description' | 'iconUrl' | 'sortOrder'> & RowDataPacket>(
         'SELECT id, name, url, description, iconUrl, sortOrder FROM `FriendLink` WHERE status = ? ORDER BY sortOrder ASC',
         ['APPROVED'],

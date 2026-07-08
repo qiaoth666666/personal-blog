@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FileText, Package, BookOpen, MessageSquare, ArrowRight } from 'lucide-react'
+import { FileText, Music4, Package, BookOpen, MessageSquare, Link2, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 interface NavCardData {
@@ -15,20 +15,20 @@ interface NavCardData {
 
 const NAV_CARDS: NavCardData[] = [
   {
-    href: '/articles',
-    label: '文章',
-    description: '技术思考、生活随笔与读书笔记',
-    icon: <BookOpen size={24} strokeWidth={1.5} />,
-    accentBar: 'var(--sp-accent-teal)',
-    accentLabel: '阅读',
-  },
-  {
     href: '/resume',
     label: '简历',
     description: '教育背景、技能与项目经历',
     icon: <FileText size={24} strokeWidth={1.5} />,
     accentBar: 'var(--sp-accent-sienna)',
     accentLabel: '关于我',
+  },
+  {
+    href: '/music',
+    label: '拾曲',
+    description: '在旋律中拾取生活的回响',
+    icon: <Music4 size={24} strokeWidth={1.5} />,
+    accentBar: 'var(--sp-accent-sienna)',
+    accentLabel: '音乐',
   },
   {
     href: '/software',
@@ -39,12 +39,28 @@ const NAV_CARDS: NavCardData[] = [
     accentLabel: '工具',
   },
   {
+    href: '/articles',
+    label: '文章',
+    description: '技术思考、生活随笔与读书笔记',
+    icon: <BookOpen size={24} strokeWidth={1.5} />,
+    accentBar: 'var(--sp-accent-teal)',
+    accentLabel: '阅读',
+  },
+  {
     href: '/guestbook',
-    label: '留言板',
+    label: '留言',
     description: '留下足迹，每一句都是温暖的遇见',
     icon: <MessageSquare size={24} strokeWidth={1.5} />,
     accentBar: 'var(--sp-accent-teal)',
     accentLabel: '互动',
+  },
+  {
+    href: '/friends',
+    label: '友链',
+    description: '惺惺相惜、互相温暖的数字邻居',
+    icon: <Link2 size={24} strokeWidth={1.5} />,
+    accentBar: 'var(--sp-accent-teal)',
+    accentLabel: '连接',
   },
 ]
 
@@ -80,8 +96,8 @@ export function NavCards() {
         </h2>
       </motion.div>
 
-      {/* 单行 4 列 */}
-      <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      {/* 6 个卡片自适应网格 */}
+      <div className="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {NAV_CARDS.map((card, i) => (
           <motion.div
             key={card.href}
@@ -104,7 +120,7 @@ export function NavCards() {
 
                 {/* 图标 */}
                 <div
-                  className="mb-4 flex h-10 w-10 items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:shadow-sm"
+                  className="mb-4 flex h-12 w-12 items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:shadow-sm"
                   style={{
                     backgroundColor: `color-mix(in srgb, ${card.accentBar} 10%, transparent)`,
                     color: card.accentBar,
@@ -123,7 +139,7 @@ export function NavCards() {
 
                 {/* 标题 */}
                 <h3
-                  className="font-display text-lg font-bold tracking-[-0.01em] text-[var(--sp-ink)]"
+                  className="font-display text-xl font-bold tracking-[-0.01em] text-[var(--sp-ink)]"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   {card.label}

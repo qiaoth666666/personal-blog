@@ -79,17 +79,23 @@ export function Footer() {
               导航
             </span>
             <div className="flex flex-col gap-1.5">
-              <Link href="/articles" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
-                文章
+              <Link href="/" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
+                首页
               </Link>
               <Link href="/resume" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
                 简历
               </Link>
+              <Link href="/music" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
+                拾曲
+              </Link>
               <Link href="/software" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
                 软库
               </Link>
+              <Link href="/articles" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
+                文章
+              </Link>
               <Link href="/guestbook" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
-                留言板
+                留言
               </Link>
               <Link href="/friends" className="text-xs text-[var(--sp-muted)] no-underline hover:text-[var(--sp-ink)] transition-colors">
                 友链
