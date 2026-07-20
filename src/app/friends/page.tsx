@@ -3,6 +3,8 @@ import type { FriendLink } from '@/types/db'
 import type { RowDataPacket } from 'mysql2/promise'
 import { cache } from '@/lib/cache'
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 import { PageTransition } from '@/components/effects/page-transition'
 import { TextileSection } from '@/components/effects/textile-overlay'
 import { FriendLinkList } from '@/components/friends/friend-link-list'

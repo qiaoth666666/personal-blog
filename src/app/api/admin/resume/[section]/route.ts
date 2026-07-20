@@ -24,16 +24,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ sect
           return NextResponse.json({ error: '姓名为必填项' }, { status: 400 })
         }
         if (existing) {
-          const fields = Object.keys(body)
+          // 排除前端传来的时间戳字段（MySQL 只认 YYYY-MM-DD HH:MM:SS 格式）
+          const fields = Object.keys(body).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
           const setClauses = fields.map((f) => `\`${f}\` = ?`).join(', ')
           const values = fields.map((f) => body[f])
           await execute(
-            `UPDATE \`ResumeProfile\` SET ${setClauses} WHERE id = ?`,
+            `UPDATE \`ResumeProfile\` SET ${setClauses}, \`updatedAt\` = NOW() WHERE id = ?`,
             [...values, existing.id],
           )
           result = await queryOne('SELECT * FROM `ResumeProfile` WHERE id = ?', [existing.id])
         } else {
-          const fields = Object.keys(body)
+          const fields = Object.keys(body).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
           const columns = fields.map((f) => `\`${f}\``).join(', ')
           const placeholders = fields.map(() => '?').join(', ')
           const values = fields.map((f) => body[f])
@@ -59,7 +60,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ sect
           await tx.execute('DELETE FROM `ResumeEducation`')
           for (let i = 0; i < items.length; i++) {
             const item = items[i]
-            const fields = Object.keys(item)
+            const fields = Object.keys(item).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
             fields.push('sortOrder')
             const columns = fields.map((f) => `\`${f}\``).join(', ')
             const placeholders = fields.map(() => '?').join(', ')
@@ -85,7 +86,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ sect
           await tx.execute('DELETE FROM `ResumeSkill`')
           for (let i = 0; i < items.length; i++) {
             const item = items[i]
-            const fields = Object.keys(item)
+            const fields = Object.keys(item).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
             fields.push('sortOrder')
             const columns = fields.map((f) => `\`${f}\``).join(', ')
             const placeholders = fields.map(() => '?').join(', ')
@@ -111,7 +112,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ sect
           await tx.execute('DELETE FROM `ResumeProject`')
           for (let i = 0; i < items.length; i++) {
             const item = items[i]
-            const fields = Object.keys(item)
+            const fields = Object.keys(item).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
             fields.push('sortOrder')
             const columns = fields.map((f) => `\`${f}\``).join(', ')
             const placeholders = fields.map(() => '?').join(', ')
@@ -137,7 +138,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ sect
           await tx.execute('DELETE FROM `ResumeCertificate`')
           for (let i = 0; i < items.length; i++) {
             const item = items[i]
-            const fields = Object.keys(item)
+            const fields = Object.keys(item).filter((f) => f !== 'updatedAt' && f !== 'createdAt')
             fields.push('sortOrder')
             const columns = fields.map((f) => `\`${f}\``).join(', ')
             const placeholders = fields.map(() => '?').join(', ')

@@ -1,25 +1,31 @@
 import { query, count } from '@/lib/db'
-import type { Article } from '@/types/db'
+import type { Article, DownloadLog } from '@/types/db'
 import type { RowDataPacket } from 'mysql2/promise'
-import { FileText, Package, MessageSquare, AlertCircle } from 'lucide-react'
+import { FileText, Package, MessageSquare, AlertCircle, Download } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
-  let stats = { articles: 0, software: 0, pending: 0, totalMessages: 0 }
+  let stats = { articles: 0, software: 0, pending: 0, totalMessages: 0, totalDownloads: 0 }
   let recentArticles: Array<{ id: number; title: string; createdAt: Date; published: boolean }> = []
+  let recentDownloads: Array<{ id: number; fileName: string; fileSize: number; ip: string | null; downloadedAt: Date }> = []
 
   try {
-    const [articleCount, softwareCount, pendingCount, totalMsgCount, recent] = await Promise.all([
+    const [articleCount, softwareCount, pendingCount, totalMsgCount, downloadCount, recent, downloads] = await Promise.all([
       count('Article'),
       count('Software'),
       count('GuestbookMessage', 'status = ?', ['PENDING']),
       count('GuestbookMessage'),
+      count('DownloadLog'),
       query<Pick<Article, 'id' | 'title' | 'createdAt' | 'published'> & RowDataPacket>(
         'SELECT id, title, createdAt, published FROM `Article` ORDER BY createdAt DESC LIMIT 5',
       ),
+      query<DownloadLog & RowDataPacket>(
+        'SELECT id, fileName, fileSize, ip, downloadedAt FROM `DownloadLog` ORDER BY downloadedAt DESC LIMIT 10',
+      ),
     ])
-    stats = { articles: articleCount, software: softwareCount, pending: pendingCount, totalMessages: totalMsgCount }
+    stats = { articles: articleCount, software: softwareCount, pending: pendingCount, totalMessages: totalMsgCount, totalDownloads: downloadCount }
     recentArticles = recent
+    recentDownloads = downloads.map((d) => ({ ...d, fileSize: Number(d.fileSize) }))
   } catch {}
 
   return (
@@ -27,9 +33,10 @@ export default async function AdminDashboard() {
       <h1 className="font-display text-3xl font-bold text-[var(--sp-ink)]" style={{ fontFamily: 'var(--font-display)' }}>仪表盘</h1>
 
       {/* 统计卡片 */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard icon={<FileText size={20} />} label="文章总数" value={stats.articles} href="/admin/articles" />
         <StatCard icon={<Package size={20} />} label="软件总数" value={stats.software} href="/admin/software" />
+        <StatCard icon={<Download size={20} />} label="总下载量" value={stats.totalDownloads} href="/admin/downloads" />
         <StatCard icon={<MessageSquare size={20} />} label="留言总数" value={stats.totalMessages} href="/admin/guestbook" />
         <StatCard
           icon={<AlertCircle size={20} />}
@@ -63,6 +70,25 @@ export default async function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* 最近下载 */}
+      {recentDownloads.length > 0 && (
+        <div className="mt-12">
+          <h2 className="font-display text-xl font-bold text-[var(--sp-ink)]" style={{ fontFamily: 'var(--font-display)' }}>最近下载</h2>
+          <div className="mt-4 border-t border-[var(--sp-hairline)]">
+            {recentDownloads.map((d) => (
+              <div key={d.id} className="flex items-center justify-between border-b border-[var(--sp-hairline)] px-2 py-3 text-sm text-[var(--sp-ink)]">
+                <span className="truncate mr-4" style={{ fontFamily: 'var(--font-serif)' }}>{d.fileName}</span>
+                <span className="flex items-center gap-4 text-xs text-[var(--sp-muted)] shrink-0" style={{ fontFamily: 'var(--font-sans)' }}>
+                  <span>{formatFileSize(d.fileSize)}</span>
+                  <span className="text-[var(--sp-muted)]/50">{d.ip || '—'}</span>
+                  <span className="text-[var(--sp-muted)]/50">{new Date(d.downloadedAt).toLocaleString('zh-CN')}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -82,4 +108,11 @@ function StatCard({ icon, label, value, href, highlight }: {
       </div>
     </Link>
   )
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)))
+  return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`
 }

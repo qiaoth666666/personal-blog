@@ -247,6 +247,16 @@ export interface MusicPlaylist {
   createdAt: Date
 }
 
+// ── 下载日志 ──
+export interface DownloadLog {
+  id: number
+  fileName: string
+  fileSize: number
+  ip: string | null
+  userAgent: string | null
+  downloadedAt: Date
+}
+
 // ── Markdown 排版配置 ──
 export interface MarkdownConfig {
   id: number

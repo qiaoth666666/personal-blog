@@ -17,6 +17,7 @@ import {
   LogOut,
   Home,
   Link2,
+  Download,
   Type,
   Sun,
   Moon,
@@ -48,6 +49,7 @@ const NAV_ITEMS = [
   { href: '/admin/hero-tags', label: '首页标签', icon: Tag },
   { href: '/admin/about', label: '关于设置', icon: Settings },
   { href: '/admin/subscribers', label: '订阅管理', icon: Bell },
+  { href: '/admin/downloads', label: '下载日志', icon: Download },
   { href: '/admin/notify', label: '邮件通知', icon: Send },
   { href: '/admin/markdown', label: 'Markdown格式', icon: Type },
 ]

@@ -43,3 +43,6 @@ next-env.d.ts
 # deployment
 .claude/
 deploy.sh
+
+# software downloads (too large for git)
+/public/downloads
