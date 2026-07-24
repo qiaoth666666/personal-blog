@@ -104,6 +104,7 @@ export function NowPlayingBar() {
                 <img
                   src={nowPlaying.cover}
                   alt={nowPlaying.name}
+                  referrerPolicy="no-referrer"
                   className={`h-full w-full object-cover transition-all duration-700 ${isPlaying ? 'scale-105' : ''}`}
                 />
               ) : (
@@ -247,7 +248,7 @@ function PlaylistDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                       >
                         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md border border-[var(--sp-hairline)]/20">
                           {song.coverUrl ? (
-                            <img src={song.coverUrl} alt={song.title} className="h-full w-full object-cover" />
+                            <img src={song.coverUrl} alt={song.title} referrerPolicy="no-referrer" className="h-full w-full object-cover" />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-[var(--sp-surface-alt)]">
                               <svg viewBox="0 0 16 16" className="h-3 w-3 opacity-20">

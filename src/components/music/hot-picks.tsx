@@ -10,7 +10,7 @@ import type { SongResult } from '@/lib/music-api'
 const HOT_KEYWORD = '热歌'
 
 export function HotPicks() {
-  const { play, nowPlaying, isPlaying, loadingSong, setSearchResults, searchHasSearched } = useMusic()
+  const { play, nowPlaying, isPlaying, loadingSong, setSearchResults, searchHasSearched, fetchCover, preloadLyricsBatch } = useMusic()
   const [songs, setSongs] = useState<SongResult[]>([])
   const [loading, setLoading] = useState(true)
   const [covers, setCovers] = useState<Record<number, string>>({})
@@ -38,7 +38,7 @@ export function HotPicks() {
     return () => { cancelled = true }
   }, [searchHasSearched])
 
-  // 逐首获取封面（每首间隔 300ms，避免 API 限流）
+  // 并行获取封面（music-context 内置 2 并发限制 + 模块级缓存）
   useEffect(() => {
     if (songs.length === 0) return
 
@@ -47,32 +47,33 @@ export function HotPicks() {
 
     let cancelled = false
 
-    async function fetchOneByOne() {
-      for (const song of uncached) {
+    async function fetchWithStagger() {
+      for (let i = 0; i < uncached.length; i += 2) {
         if (cancelled) break
-
-        try {
-          const res = await fetch(`/api/music/url?msg=${encodeURIComponent(HOT_KEYWORD)}&n=${song.n}&quality=standard`)
-          const data = await res.json()
-          if (!cancelled && data.cover) {
-            setCovers((prev) => ({ ...prev, [song.n]: data.cover }))
-          }
-        } catch {
-          // ignore
-        }
-
-        // 每首之间间隔 300ms
-        await new Promise((r) => setTimeout(r, 300))
+        const batch = uncached.slice(i, i + 2)
+        await Promise.allSettled(
+          batch.map((song) =>
+            fetchCover(HOT_KEYWORD, song.n).then((cover) => {
+              if (!cancelled && cover) {
+                setCovers((prev) => ({ ...prev, [song.n]: cover }))
+              }
+            })
+          )
+        )
+        // 每批间隔 600ms，给 API 喘息时间
+        if (i + 2 < uncached.length) await new Promise((r) => setTimeout(r, 600))
       }
     }
 
-    const timer = setTimeout(fetchOneByOne, 500) // 延迟 500ms 启动，不阻塞首次渲染
+    fetchWithStagger()
 
-    return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
-  }, [songs])
+    // 同时后台预加载歌词（预热服务端缓存，打开动画面板秒出）
+    preloadLyricsBatch(
+      songs.map((s) => ({ msg: HOT_KEYWORD, n: s.n, name: s.name, singer: s.singer }))
+    )
+
+    return () => { cancelled = true }
+  }, [songs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 如果用户已搜索，不显示
   if (searchHasSearched) return null
@@ -125,7 +126,7 @@ export function HotPicks() {
                   {/* 封面 */}
                   <div className="relative aspect-square overflow-hidden">
                     {cover ? (
-                      <img src={cover} alt={song.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                      <img src={cover} alt={song.name} referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-[var(--sp-surface-alt)]">
                         <svg viewBox="0 0 120 120" className="h-16 w-16 opacity-15">

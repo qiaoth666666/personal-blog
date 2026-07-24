@@ -33,7 +33,7 @@ export async function RecentArticles() {
   }
 
   return (
-    <TextileSection className="py-24" opacity={0.25}>
+    <TextileSection className="pt-24 pb-4" opacity={0.25}>
       <div className="mx-auto max-w-3xl px-6">
         {/* Section 标题 */}
         <div className="mb-16 text-center">

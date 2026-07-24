@@ -1,8 +1,10 @@
 'use client'
 
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Music4 } from 'lucide-react'
 import { SongCard } from './song-card'
+import { useMusic } from './music-context'
 import type { SongResult } from '@/lib/music-api'
 
 interface SearchResultsProps {
@@ -32,6 +34,16 @@ function SkeletonCard() {
 }
 
 export function SearchResults({ songs, isLoading, hasSearched, searchKeyword }: SearchResultsProps) {
+  const { preloadLyricsBatch } = useMusic()
+
+  // 搜索结果出来后，后台预加载所有歌词
+  useEffect(() => {
+    if (songs.length === 0 || !searchKeyword) return
+    preloadLyricsBatch(
+      songs.map((s) => ({ msg: searchKeyword, n: s.n, name: s.name, singer: s.singer }))
+    )
+  }, [songs, searchKeyword]) // eslint-disable-line react-hooks/exhaustive-deps
+
   if (isLoading) {
     return (
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">

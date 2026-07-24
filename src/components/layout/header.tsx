@@ -3,13 +3,24 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Menu, X, Sun, Moon } from 'lucide-react'
+import { Menu, X, Sun, Moon, Home, FileText, Music, Package, BookOpen, MessageSquare, Link2, User } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { NAV_LINKS } from '@/lib/constants'
 import { useSiteConfig } from '@/components/layout/site-config-provider'
 import { useMusic } from '@/components/music/music-context'
+
+const mobileNavIcons: Record<string, React.ComponentType<{ size?: number }>> = {
+  '/': Home,
+  '/resume': FileText,
+  '/music': Music,
+  '/software': Package,
+  '/articles': BookOpen,
+  '/guestbook': MessageSquare,
+  '/friends': Link2,
+  '/about': User,
+}
 
 export function Header() {
   const pathname = usePathname()
@@ -147,12 +158,12 @@ export function Header() {
           )}
 
           {/* Theme Toggle */}
-          {mounted && (
-            <motion.button
+          <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="ml-2 rounded-lg p-2 text-[var(--sp-muted)] hover:text-[var(--sp-ink)] transition-all duration-300 cursor-pointer"
               aria-label="切换主题"
+              style={{ opacity: mounted ? 1 : 0, pointerEvents: mounted ? 'auto' : 'none' }}
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
@@ -166,67 +177,96 @@ export function Header() {
                 </motion.div>
               </AnimatePresence>
             </motion.button>
-          )}
         </ul>
 
-        {/* Mobile Toggle */}
-        <div className="flex items-center gap-2 md:hidden">
-          {mounted && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="rounded-lg p-2 text-[var(--sp-muted)] hover:text-[var(--sp-ink)] transition-colors cursor-pointer"
-              aria-label="切换主题"
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </motion.button>
-          )}
+        {/* Mobile: theme toggle + 汉堡按钮 */}
+        <div className="flex items-center gap-1 md:hidden">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="rounded-lg p-2 text-[var(--sp-muted)] hover:text-[var(--sp-ink)] transition-colors cursor-pointer"
+            aria-label="切换主题"
+            style={{ opacity: mounted ? 1 : 0, pointerEvents: mounted ? 'auto' : 'none' }}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </motion.button>
+
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="rounded-lg p-2 text-[var(--sp-ink)] hover:bg-[var(--sp-surface)]/40 cursor-pointer transition-colors"
-            aria-label="菜单"
+            aria-label={mobileOpen ? '关闭菜单' : '打开菜单'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Nav Overlay */}
+      {/* Mobile Nav Panel —— 从顶部滑入 */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            className="fixed inset-0 top-[53px] z-40 bg-[var(--sp-ground)] md:hidden"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <ul className="flex flex-col items-center gap-6 pt-20">
-              {NAV_LINKS.map((link, i) => (
-                <motion.li
-                  key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ delay: i * 0.05, duration: 0.3 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={(e) => { handleNavClick(link.href)(e); setMobileOpen(false) }}
-                    className={cn(
-                      'text-2xl font-display font-medium tracking-wide no-underline transition-colors',
-                      pathname === link.href
-                        ? 'text-[var(--sp-ink)]'
-                        : 'text-[var(--sp-muted)] hover:text-[var(--sp-ink)]',
-                    )}
-                    style={{ fontFamily: 'var(--font-display)' }}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
+          <>
+            {/* 背景遮罩 */}
+            <motion.div
+              className="fixed inset-0 z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMobileOpen(false)}
+            />
+
+            {/* 面板 */}
+            <motion.div
+              className="mobile-nav-panel md:hidden"
+              initial={{ y: '-100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '-100%' }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* 关闭按钮 */}
+              <button
+                className="mobile-nav-close"
+                onClick={() => setMobileOpen(false)}
+                aria-label="关闭菜单"
+              >
+                <X size={20} />
+              </button>
+
+              {/* 2×4 网格 */}
+              <ul className="mobile-nav-grid">
+                {NAV_LINKS.map((link, i) => {
+                  const Icon = mobileNavIcons[link.href] || null
+                  const row = Math.floor(i / 2)
+                  return (
+                    <motion.li
+                      key={link.href}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{
+                        delay: 0.15 + row * 0.08,
+                        duration: 0.3,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={(e) => { handleNavClick(link.href)(e); setMobileOpen(false) }}
+                        className={cn(
+                          'mobile-nav-link',
+                          pathname === link.href && 'active',
+                        )}
+                      >
+                        {Icon && <Icon />}
+                        {link.label}
+                      </Link>
+                    </motion.li>
+                  )
+                })}
+              </ul>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>

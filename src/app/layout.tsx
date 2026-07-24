@@ -36,6 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${playfairDisplay.variable} ${sourceSerif4.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
+      <link rel="preload" href="/images/背景.jpg?v=4" as="image" fetchPriority="high" />
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MusicProvider>

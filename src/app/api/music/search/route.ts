@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await searchMusic(keyword, 20)
+    const result = await searchMusic(keyword, 15)
     return NextResponse.json(result)
   } catch (err) {
     console.error('[music/search] 搜索失败:', err)

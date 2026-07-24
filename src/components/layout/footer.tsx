@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Mail, Heart, Send, Loader2, MessageCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mail, Heart, Send, Loader2, MessageCircle, RefreshCw } from 'lucide-react'
 import { useSiteConfig } from '@/components/layout/site-config-provider'
 import { toast } from 'sonner'
 
@@ -10,7 +11,22 @@ export function Footer() {
   const year = new Date().getFullYear()
   const siteConfig = useSiteConfig()
   const [email, setEmail] = useState('')
+  const [captcha, setCaptcha] = useState('')
+  const [captchaKey, setCaptchaKey] = useState(0)
+  const [showCaptcha, setShowCaptcha] = useState(false)
   const [subscribing, setSubscribing] = useState(false)
+
+  const refreshCaptcha = useCallback(() => {
+    setCaptchaKey((k) => k + 1)
+    setCaptcha('')
+  }, [])
+
+  // 每次 captchaKey 变化时预加载验证码
+  useEffect(() => {
+    fetch('/api/captcha', { cache: 'no-store' }).catch(() => {})
+  }, [captchaKey])
+
+  const captchaSrc = `/api/captcha?t=${captchaKey}`
 
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault()
@@ -24,19 +40,35 @@ export function Footer() {
       return
     }
 
+    // 第一步：展示验证码
+    if (!showCaptcha) {
+      setShowCaptcha(true)
+      return
+    }
+
+    // 第二步：验证验证码并提交
+    if (!captcha.trim()) {
+      toast.error('请输入验证码')
+      return
+    }
+
     setSubscribing(true)
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), captcha: captcha.trim() }),
       })
       const data = await res.json()
       if (res.ok) {
         toast.success(data.message || '订阅成功，请等待管理员审核')
         setEmail('')
+        setCaptcha('')
+        setShowCaptcha(false)
+        refreshCaptcha()
       } else {
         toast.error(data.error || data.message || '订阅失败')
+        if (data.error?.includes('验证码')) refreshCaptcha()
       }
     } catch {
       toast.error('网络错误，请稍后重试')
@@ -190,11 +222,7 @@ export function Footer() {
                 </div>
               ) : (
                 <p className="text-[13px] text-[var(--sp-muted)]/60">
-                  联系方式待配置 — 前往
-                  <Link href="/admin/about" className="mx-1 text-[var(--sp-accent-teal)] hover:opacity-70">
-                    管理后台
-                  </Link>
-                  设置
+                  暂无联系方式
                 </p>
               )}
             </div>
@@ -208,20 +236,69 @@ export function Footer() {
                 新文章第一时间通知你
               </p>
 
-              <form onSubmit={handleSubscribe} className="mt-2.5 flex gap-2">
+              <form onSubmit={handleSubscribe} className="mt-2.5">
+                {/* 邮箱 */}
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="邮箱地址"
                   required
-                  className="w-full min-w-0 flex-1 border-b border-[var(--sp-hairline)] bg-transparent px-2.5 py-2 text-[13px] text-[var(--sp-ink)] outline-none transition-colors focus:border-[var(--sp-ink)] placeholder:text-[var(--sp-muted)]/40"
+                  className="w-full border-b border-[var(--sp-hairline)] bg-transparent px-2.5 py-1.5 text-[13px] text-[var(--sp-ink)] outline-none transition-colors focus:border-[var(--sp-ink)] placeholder:text-[var(--sp-muted)]/40"
                   style={{ fontFamily: 'var(--font-sans)' }}
                 />
-                <button
+
+                {/* 验证码 — 从右滑入，丝滑过渡 */}
+                <AnimatePresence mode="sync">
+                  {showCaptcha && (
+                    <motion.div
+                      initial={{ x: 80, opacity: 0, maxHeight: 0, marginTop: 0 }}
+                      animate={{ x: 0, opacity: 1, maxHeight: 60, marginTop: 8 }}
+                      exit={{ x: 80, opacity: 0, maxHeight: 0, marginTop: 0 }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={captchaSrc}
+                          alt="验证码"
+                          width={90}
+                          height={30}
+                          className="h-[30px] w-[90px] shrink-0 rounded border border-[var(--sp-hairline)] cursor-pointer"
+                          onClick={refreshCaptcha}
+                          title="点击换一张"
+                        />
+                        <button
+                          type="button"
+                          onClick={refreshCaptcha}
+                          className="shrink-0 text-[var(--sp-muted)]/50 hover:text-[var(--sp-ink)] transition-colors cursor-pointer"
+                          title="换一张"
+                        >
+                          <RefreshCw size={12} strokeWidth={1.5} />
+                        </button>
+                        <input
+                          type="text"
+                          value={captcha}
+                          onChange={(e) => setCaptcha(e.target.value)}
+                          placeholder="验证码"
+                          required
+                          maxLength={4}
+                          autoComplete="off"
+                          className="min-w-0 flex-1 border-b border-[var(--sp-hairline)] bg-transparent px-2 py-1.5 text-[13px] text-[var(--sp-ink)] outline-none transition-colors focus:border-[var(--sp-ink)] placeholder:text-[var(--sp-muted)]/40"
+                          style={{ fontFamily: 'var(--font-sans)' }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* 提交按钮 */}
+                <motion.button
                   type="submit"
                   disabled={subscribing}
-                  className="group relative inline-flex shrink-0 items-center overflow-hidden border border-[var(--sp-ink)] bg-[var(--sp-ink)] px-3.5 py-2 text-[13px] font-medium text-[var(--sp-ground)] transition-all duration-300 hover:bg-transparent hover:text-[var(--sp-ink)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  layout
+                  transition={{ layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
+                  className="group relative mt-2 inline-flex w-full items-center justify-center overflow-hidden border border-[var(--sp-ink)] bg-[var(--sp-ink)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--sp-ground)] transition-all duration-300 hover:bg-transparent hover:text-[var(--sp-ink)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                   style={{ fontFamily: 'var(--font-sans)' }}
                 >
                   <span className="absolute inset-0 -translate-x-full bg-[var(--sp-ground)] transition-transform duration-300 group-hover:translate-x-0" />
@@ -231,6 +308,11 @@ export function Footer() {
                         <Loader2 size={12} className="animate-spin" />
                         提交中
                       </>
+                    ) : showCaptcha ? (
+                      <>
+                        <Send size={12} />
+                        确认订阅
+                      </>
                     ) : (
                       <>
                         <Send size={12} />
@@ -238,7 +320,7 @@ export function Footer() {
                       </>
                     )}
                   </span>
-                </button>
+                </motion.button>
               </form>
 
               <p className="mt-2 text-[10px] text-[var(--sp-muted)]/40">
@@ -248,22 +330,40 @@ export function Footer() {
           </div>
         </div>
 
-        {/* ═══ 底部：ICP 备案 ═══ */}
+        {/* ═══ 底部：备案号 ═══ */}
         <div className="mt-10 pt-6 border-t border-[var(--sp-hairline)]/30 text-center">
-          <a
-            href="https://beian.miit.gov.cn/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 no-underline text-[var(--sp-muted)]/60 hover:text-[var(--sp-accent-sienna)] transition-colors"
-          >
-            <img src="/images/icp-icon.png" alt="ICP备案" width="17" height="17" className="inline-block" />
-            <span
-              className="text-sm tracking-wide"
-              style={{ fontFamily: 'var(--font-sans)' }}
+          <div className="inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+            {/* 公安备案 */}
+            <a
+              href="https://beian.mps.gov.cn/#/query/webSearch?keyword=豫公网安备41132702000148号"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 no-underline text-[var(--sp-muted)]/60 hover:text-[var(--sp-accent-sienna)] transition-colors"
             >
-              豫ICP备2026032094号
-            </span>
-          </a>
+              <img src="/images/gongan-icon.png" alt="公安备案" width="17" height="17" className="inline-block" />
+              <span
+                className="text-sm tracking-wide"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                豫公网安备41132702000148号
+              </span>
+            </a>
+            {/* ICP 备案 */}
+            <a
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 no-underline text-[var(--sp-muted)]/60 hover:text-[var(--sp-accent-sienna)] transition-colors"
+            >
+              <img src="/images/icp-icon.png" alt="ICP备案" width="17" height="17" className="inline-block" />
+              <span
+                className="text-sm tracking-wide"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                豫ICP备2026032094号
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

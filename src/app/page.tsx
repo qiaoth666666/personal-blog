@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/home/hero-section'
 import { NavCards } from '@/components/home/nav-cards'
 import { PhotoStrip } from '@/components/home/photo-strip'
 import { RecentArticles } from '@/components/home/recent-articles'
+import { TechToolsSection } from '@/components/home/tech-tools-section'
 
 import { query, queryOne } from '@/lib/db'
 import type { ResumeProfile, Photo, HeroTag } from '@/types/db'
@@ -102,6 +103,8 @@ async function HomeData() {
       >
         <RecentArticles />
       </Suspense>
+
+      <TechToolsSection />
     </>
   )
 }

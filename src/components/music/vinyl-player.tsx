@@ -66,6 +66,7 @@ export function VinylPlayer({ coverUrl, isPlaying, onTogglePlay, progress = 0 }:
             <img
               src={coverUrl}
               alt=""
+              referrerPolicy="no-referrer"
               className="rounded-full object-cover z-10"
               draggable={false}
               style={{ width: '46%', height: '46%' }}

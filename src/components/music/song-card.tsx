@@ -97,6 +97,7 @@ export function SongCard({ song, searchMsg, index }: SongCardProps) {
             <img
               src={displayCover}
               alt={song.name}
+              referrerPolicy="no-referrer"
               className="h-full w-full object-cover"
               loading="lazy"
             />

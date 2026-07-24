@@ -1,0 +1,207 @@
+/* ============================================
+   歌曲墙 —— GSAP 绝对定位瀑布流
+   风格: Stripe Press 温润书卷 / 复古唱片美学
+   ============================================ */
+
+/* ── 外层区域：砖墙背景（伪元素淡出处理，不抢眼）── */
+/* ── 全页砖墙背景 ── */
+.music-page-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.music-page-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.music-page-bg::before {
+  content: '';
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: url("/images/背景.jpg?v=4") top center / cover no-repeat;
+  opacity: 0.35;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 70%, transparent 100%);
+}
+
+/* 标题、容器置于伪元素之上 */
+.song-wall-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 容器 ── */
+.song-wall-container {
+  position: relative;
+  width: 100%;
+}
+
+/* ── 每块砖 ── */
+.song-wall-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, width, height, opacity, filter;
+  cursor: pointer;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.song-wall-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-hairline);
+  box-shadow: var(--shadow-book);
+  /* 无圆角 — Stripe Press 直角原则 */
+}
+
+.song-wall-item:hover .song-wall-card {
+  border-color: rgba(184, 85, 58, 0.2);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.22);
+}
+
+.dark .song-wall-card {
+  background: var(--sp-surface);
+  border-color: var(--sp-hairline);
+}
+
+.dark .song-wall-item:hover .song-wall-card {
+  border-color: rgba(212, 133, 101, 0.2);
+}
+
+/* ── 封面图 ── */
+.song-wall-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--sp-surface-alt);
+  overflow: hidden;
+}
+
+/* 封面图背景 — 独立分层，方便占位图在下方透出 */
+.song-wall-img-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* 占位图（无封面时显示） */
+.song-wall-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sp-surface-alt);
+  color: var(--sp-muted);
+}
+
+/* ── 微噪点纹理 ── */
+.song-wall-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* ── 悬停播放叠加层 ── */
+.song-wall-play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.song-wall-item:hover .song-wall-play-overlay {
+  opacity: 1;
+}
+
+.song-wall-play-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.song-wall-card:hover .song-wall-play-circle {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.06);
+}
+
+/* ── 底部信息栏 ── */
+.song-wall-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 20px 10px 8px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+.song-wall-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.song-wall-artist {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ── 波形动画（播放中）── */
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.35); }
+}
+
+.animate-wave {
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+/* ── 当前播放歌曲标记（无特殊边框，由播放动画指示）── */

@@ -47,10 +47,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
         className={`
           group relative flex items-center overflow-hidden
           border-2 transition-all duration-500
-          ${focused
-            ? 'border-[var(--sp-accent-sienna)] shadow-[0_0_32px_rgba(184,85,58,0.12)]'
-            : 'border-[var(--sp-hairline)]/40 hover:border-[var(--sp-hairline)]'
-          }
+          border-[var(--sp-accent-sienna)] shadow-[0_0_16px_rgba(184,85,58,0.08)]
         `}
         style={{ borderRadius: '16px' }}
       >

@@ -46,3 +46,7 @@ deploy.sh
 
 # software downloads (too large for git)
 /public/downloads
+
+# local music files (copyright & size)
+/public/songs
+/public/images/covers

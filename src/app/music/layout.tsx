@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: '拾曲',
     description: '拾取散落在时光里的旋律 —— 在线听歌、搜索、收藏',
+    robots: { index: false, follow: false },
     openGraph: {
       title: `拾曲 | ${config.siteName || '个人博客'}`,
       description: '拾取散落在时光里的旋律',
@@ -14,5 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function MusicLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <meta name="robots" content="noindex, nofollow" />
+      <link rel="preload" href="/images/背景.jpg?v=4" as="image" />
+      {children}
+    </>
+  )
 }

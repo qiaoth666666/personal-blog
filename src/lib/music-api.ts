@@ -94,7 +94,7 @@ function apiKey(): string {
 
 async function fetchApi<T>(
   params: Record<string, string | number>,
-  retries: number = 2,
+  retries: number = 4,
 ): Promise<T> {
   const url = new URL(API_BASE)
   url.searchParams.set('key', apiKey())
@@ -106,8 +106,8 @@ async function fetchApi<T>(
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     if (attempt > 0) {
-      // 指数退避 + 随机抖动
-      const delay = Math.min(1000 * Math.pow(2, attempt - 1) + Math.random() * 500, 4000)
+      // 503 退避更长：1s → 3s → 5s → 7s + 随机抖动
+      const delay = Math.min(1000 + attempt * 2000 + Math.random() * 1000, 8000)
       await new Promise((r) => setTimeout(r, delay))
     }
 
@@ -169,7 +169,7 @@ export async function searchMusic(
           name: s.name,
           singer: s.singer,
           album: s.album || '',
-          cover: s.cover || s.img || s.pic || s.image || s.album_img || s.album_pic || s.thumb || s.thumbnail || '',
+          cover: (s.cover || s.img || s.pic || s.image || s.album_img || s.album_pic || s.thumb || s.thumbnail || '').replace(/^http:\/\//i, '/api/proxy-image?url=http%3A%2F%2F'),
           qualities: s.qualities || [],
         }),
       ),
@@ -217,7 +217,7 @@ export async function getSongDetail(
       singer: d.singer,
       album: d.album || '',
       qualities: [],
-      cover: d.cover || '',
+      cover: (d.cover || '').replace(/^http:\/\//i, '/api/proxy-image?url=http%3A%2F%2F'),
       playUrl: d.play_url || '',
       duration: d.duration || 0,
       durationFormat: d.duration_format || '',

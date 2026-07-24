@@ -10,11 +10,14 @@ import {
 } from 'react'
 import type { MusicPlaylist } from '@/types/db'
 import type { LyricLine, SongResult } from '@/lib/music-api'
+import { parseLrc } from '@/lib/music-api'
 
 // ============================================================
-// 模块级 Audio 单例 —— 跨 React 挂载周期存活
+// 模块级 Audio 单例 & 本地播放队列
 // ============================================================
 let globalAudio: HTMLAudioElement | null = null
+let localQueue: Array<{ id: string; name: string; singer: string; cover: string; audioPath: string; lyrics: string | null; duration: number; durationFormat: string }> = []
+let playNextRef: (() => void) | null = null
 function getAudio(volume: number): HTMLAudioElement {
   if (!globalAudio) {
     globalAudio = new Audio()
@@ -33,7 +36,7 @@ const urlCache = new Map<string, { url: string; cover: string; duration: number;
 // ============================================================
 const coverCache = new Map<string, string>()
 let coverFetchInFlight = 0
-const MAX_CONCURRENT_COVER_FETCHES = 3
+const MAX_CONCURRENT_COVER_FETCHES = 2
 const coverFetchQueue: Array<() => void> = []
 
 function drainCoverQueue() {
@@ -56,7 +59,11 @@ async function fetchCoverSingle(msg: string, n: number): Promise<string> {
           `/api/music/url?msg=${encodeURIComponent(msg)}&n=${n}&quality=standard`,
         )
         const data = await res.json()
-        const cover = data.cover || ''
+        let cover = data.cover || ''
+        // HTTP 封面链接 → 走代理（绕过浏览器混合内容拦截）
+        if (cover.startsWith('http://')) {
+          cover = `/api/proxy-image?url=${encodeURIComponent(cover)}`
+        }
         coverCache.set(cacheKey, cover)
         resolve(cover)
       } catch {
@@ -74,6 +81,59 @@ async function fetchCoverSingle(msg: string, n: number): Promise<string> {
       coverFetchQueue.push(doFetch)
     }
   })
+}
+
+// ============================================================
+// 模块级歌词预加载缓存 + 并发限制
+// ============================================================
+const lyricsPreloadCache = new Map<string, boolean>()
+let lyricsPreloadInFlight = 0
+const MAX_LYRICS_PRELOAD = 1
+const lyricsPreloadQueue: Array<() => void> = []
+
+function drainLyricsQueue() {
+  while (lyricsPreloadInFlight < MAX_LYRICS_PRELOAD && lyricsPreloadQueue.length > 0) {
+    const next = lyricsPreloadQueue.shift()
+    if (next) next()
+  }
+}
+
+/** 后台预加载歌词（仅预热服务端缓存，不返回数据） */
+function preloadLyricsSingle(msg: string, n: number, title: string, artist: string): void {
+  const cacheKey = `lrc:${msg}|${n}`
+  if (lyricsPreloadCache.has(cacheKey)) return
+  lyricsPreloadCache.set(cacheKey, true)
+
+  const doFetch = async () => {
+    lyricsPreloadInFlight++
+    try {
+      await fetch(
+        `/api/music/lyrics?msg=${encodeURIComponent(msg)}&n=${n}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`,
+      )
+    } catch { /* 静默 */ }
+    finally {
+      lyricsPreloadInFlight--
+      drainLyricsQueue()
+    }
+  }
+
+  if (lyricsPreloadInFlight < MAX_LYRICS_PRELOAD) {
+    doFetch()
+  } else {
+    lyricsPreloadQueue.push(doFetch)
+  }
+}
+
+/**
+ * 批量预加载多首歌曲的歌词（2 并发，不阻塞 UI）
+ * 预热服务端 /api/music/lyrics 缓存 → 打开动画面板秒出
+ */
+function preloadLyricsBatch(
+  songs: Array<{ msg: string; n: number; name: string; singer: string }>,
+) {
+  for (const s of songs) {
+    preloadLyricsSingle(s.msg, s.n, s.name, s.singer)
+  }
 }
 
 // ============================================================
@@ -167,6 +227,7 @@ interface MusicContextType {
   searchKeyword: string
 
   play: (song: { msg: string; n: number; name: string; singer: string }) => void
+  playLocal: (song: { id: string; name: string; singer: string; cover: string; audioPath: string; lyrics: string | null; duration: number; durationFormat: string }, queue?: Array<{ id: string; name: string; singer: string; cover: string; audioPath: string; lyrics: string | null; duration: number; durationFormat: string }>) => void
   togglePlay: () => void
   seek: (time: number) => void
   setVolume: (v: number) => void
@@ -192,6 +253,9 @@ interface MusicContextType {
 
   /** 按需获取单首歌曲封面（带缓存+并发限制） */
   fetchCover: (msg: string, n: number) => Promise<string>
+
+  /** 批量后台预加载歌词，预热服务端缓存 */
+  preloadLyricsBatch: (songs: Array<{ msg: string; n: number; name: string; singer: string }>) => void
 
   addToPlaylist: (song: {
     n: number
@@ -274,7 +338,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime)
     const onDurationChange = () => setDuration(audio.duration || 0)
-    const onEnded = () => setIsPlaying(false)
+    const onEnded = () => { setIsPlaying(false); playNextRef?.() }
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
 
@@ -458,7 +522,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
         const audio = getAudio(volume)
         if (np.url) {
-          audio.src = np.url
+          // 自动代理 HTTP 音频（桌面端 HTTPS 页面禁止加载 HTTP 资源）
+          const safeUrl = np.url.startsWith('http://')
+            ? `/api/music/proxy-audio?url=${encodeURIComponent(np.url)}`
+            : np.url
+          audio.src = safeUrl
           audio.play().catch(() => {
             setIsPlaying(false)
           })
@@ -479,6 +547,36 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       }
     },
     [volume, playQueue, searchKeyword, playlist],
+  )
+
+  /** 播放本地歌曲 —— 跳过外部 API，直接用本地文件路径 */
+  const playLocal = useCallback(
+    (song: { id: string; name: string; singer: string; cover: string; audioPath: string; lyrics: string | null; duration: number; durationFormat: string }, queue?: typeof localQueue) => {
+      if (queue) localQueue = queue
+      const audio = getAudio(volume)
+      const np: NowPlaying = {
+        msg: 'local',
+        n: 0,
+        name: song.name,
+        singer: song.singer,
+        cover: song.cover,
+        duration: song.duration,
+        durationFormat: song.durationFormat,
+        url: song.audioPath,
+      }
+      setNowPlaying(np)
+
+      // 解析歌词（API 已转为标准 LRC 格式）
+      if (song.lyrics) {
+        setParsedLyrics(parseLrc(song.lyrics))
+      } else {
+        setParsedLyrics([])
+      }
+
+      audio.src = song.audioPath
+      audio.play().catch(() => {})
+    },
+    [volume],
   )
 
   /** 播放成功后，在后台预加载当前歌曲的前后曲目（仅缓存 URL） */
@@ -557,6 +655,14 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const playNext = useCallback(() => {
     if (!nowPlaying) return
 
+    // 本地歌曲队列
+    if (nowPlaying.msg === 'local' && localQueue.length > 0) {
+      const idx = localQueue.findIndex(s => s.audioPath === nowPlaying.url)
+      const next = idx >= 0 ? (localQueue[(idx + 1) % localQueue.length]) : localQueue[0]
+      if (next) playLocal(next)
+      return
+    }
+
     // 优先使用播放队列
     if (playQueue.length > 0) {
       const currentIdx = playQueue.findIndex((s) => s.n === nowPlaying.n)
@@ -591,8 +697,19 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [nowPlaying, playQueue, searchKeyword, playlist, play])
 
+  // 保持模块级 ref 最新，供 audio ended 事件使用
+  playNextRef = playNext
+
   const playPrev = useCallback(() => {
     if (!nowPlaying) return
+
+    // 本地歌曲队列
+    if (nowPlaying.msg === 'local' && localQueue.length > 0) {
+      const idx = localQueue.findIndex(s => s.audioPath === nowPlaying.url)
+      const prev = idx > 0 ? localQueue[idx - 1] : localQueue[localQueue.length - 1]
+      if (prev) playLocal(prev)
+      return
+    }
 
     // 优先使用播放队列
     if (playQueue.length > 0) {
@@ -716,6 +833,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         searchHasSearched,
         searchKeyword,
         play,
+        playLocal,
         togglePlay,
         seek,
         setVolume,
@@ -733,6 +851,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         parsedLyrics,
         setParsedLyrics,
         fetchCover: fetchCoverSingle,
+        preloadLyricsBatch,
         addToPlaylist,
         removeFromPlaylist,
         refreshPlaylist,

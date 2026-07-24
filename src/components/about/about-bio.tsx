@@ -23,14 +23,7 @@ export function AboutBio({ content }: { content: string | null }) {
           className="mt-4 text-sm text-[var(--sp-muted)]"
           style={{ fontFamily: 'var(--font-sans)' }}
         >
-          前往{' '}
-          <a
-            href="/admin/about"
-            className="text-[var(--sp-accent-teal)] hover:opacity-70"
-          >
-            管理后台 → 关于设置 → 个人介绍
-          </a>{' '}
-          填写
+          敬请期待
         </p>
       </div>
     )

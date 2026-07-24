@@ -17,6 +17,7 @@ export function SongDetailPanel() {
     duration,
     togglePlay,
     seek,
+    parsedLyrics,
   } = useMusic()
 
   const [panelMode, setPanelMode] = useState<'vinyl' | 'lyric'>('vinyl')
@@ -25,12 +26,6 @@ export function SongDetailPanel() {
   const [coverUrl, setCoverUrl] = useState('')
   const lyricsRef = useRef<HTMLDivElement>(null)
 
-  // 面板打开时自动回到顶部（挂载时 + showDetailPanel 变化时都会触发）
-  useEffect(() => {
-    if (showDetailPanel) {
-      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
-    }
-  }, [showDetailPanel])
 
   // 当面板打开或当前歌曲变化时获取歌词和封面
   useEffect(() => {
@@ -38,6 +33,13 @@ export function SongDetailPanel() {
 
     const { msg, n, cover } = nowPlaying
     setCoverUrl(cover || '')
+
+    // 本地歌曲直接用 context 中已解析的歌词
+    if (msg === 'local') {
+      setLyrics(parsedLyrics)
+      setLyricsLoading(false)
+      return
+    }
 
     let cancelled = false
 
@@ -48,7 +50,6 @@ export function SongDetailPanel() {
         const artist = nowPlaying?.singer || ''
         const [lyricsRes] = await Promise.all([
           fetch(`/api/music/lyrics?msg=${encodeURIComponent(msg)}&n=${n}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`),
-          // 如果还没有封面，顺便获取
           cover ? Promise.resolve() : (
             fetch(`/api/music/url?msg=${encodeURIComponent(msg)}&n=${n}&quality=standard`)
               .then((r) => r.json())
@@ -70,12 +71,11 @@ export function SongDetailPanel() {
     }
 
     fetchData()
-    // 重置歌词位置
     setLyrics([])
     setLyricsLoading(true)
 
     return () => { cancelled = true }
-  }, [showDetailPanel, nowPlaying?.msg, nowPlaying?.n]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showDetailPanel, nowPlaying?.msg, nowPlaying?.n, parsedLyrics]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 计算当前高亮歌词行
   const activeLyricIndex = lyrics.reduce((last, line, i) => {

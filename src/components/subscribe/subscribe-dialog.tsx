@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { X, BellRing, Loader2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { X, BellRing, Loader2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface SubscribeDialogProps {
@@ -11,7 +12,27 @@ interface SubscribeDialogProps {
 
 export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
   const [email, setEmail] = useState('')
+  const [captcha, setCaptcha] = useState('')
+  const [captchaKey, setCaptchaKey] = useState(0)
+  const [showCaptcha, setShowCaptcha] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const refreshCaptcha = useCallback(() => {
+    setCaptchaKey((k) => k + 1)
+    setCaptcha('')
+  }, [])
+
+  useEffect(() => {
+    if (open) {
+      refreshCaptcha()
+    }
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    fetch('/api/captcha', { cache: 'no-store' }).catch(() => {})
+  }, [captchaKey])
+
+  const captchaSrc = `/api/captcha?t=${captchaKey}`
 
   if (!open) return null
 
@@ -22,26 +43,48 @@ export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
       return
     }
 
+    // 第一步：展示验证码
+    if (!showCaptcha) {
+      setShowCaptcha(true)
+      return
+    }
+
+    // 第二步：验证验证码并提交
+    if (!captcha.trim()) {
+      toast.error('请输入验证码')
+      return
+    }
+
     setLoading(true)
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), captcha: captcha.trim() }),
       })
       const data = await res.json()
       if (res.ok) {
         toast.success(data.message || '订阅成功')
         setEmail('')
+        setCaptcha('')
+        setShowCaptcha(false)
         onClose()
       } else {
         toast.error(data.error || data.message || '订阅失败')
+        if (data.error?.includes('验证码')) refreshCaptcha()
       }
     } catch {
       toast.error('网络错误，请稍后重试')
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleClose() {
+    setEmail('')
+    setCaptcha('')
+    setShowCaptcha(false)
+    onClose()
   }
 
   return (
@@ -52,14 +95,14 @@ export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
       {/* 遮罩 */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* 弹窗 */}
       <div className="relative mx-4 w-full max-w-md border border-[var(--sp-hairline)] bg-[var(--sp-ground)] p-8 shadow-2xl">
         {/* 关闭按钮 */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-4 top-4 text-[var(--sp-muted)] hover:text-[var(--sp-ink)] transition-colors cursor-pointer"
           aria-label="关闭"
         >
@@ -81,7 +124,7 @@ export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-hidden">
           <div>
             <input
               type="email"
@@ -92,6 +135,50 @@ export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
               className="w-full border-b-2 border-[var(--sp-hairline)] bg-transparent py-2.5 text-[var(--sp-ink)] outline-none transition-colors focus:border-[var(--sp-ink)] placeholder:text-[var(--sp-muted)]"
             />
           </div>
+
+          {/* 验证码 — 高度展开/收起，内容显现 */}
+          <motion.div
+            animate={{
+              height: showCaptcha ? 36 : 0,
+              marginTop: showCaptcha ? 0 : -16,
+              opacity: showCaptcha ? 1 : 0,
+            }}
+            transition={{ type: 'spring', stiffness: 280, damping: 26, mass: 0.8 }}
+            className="overflow-hidden"
+            style={{ pointerEvents: showCaptcha ? 'auto' : 'none' }}
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src={captchaSrc}
+                alt="验证码"
+                width={110}
+                height={36}
+                className="h-[36px] w-[110px] shrink-0 rounded border border-[var(--sp-hairline)] cursor-pointer"
+                onClick={refreshCaptcha}
+                title="点击换一张"
+              />
+              <button
+                type="button"
+                onClick={refreshCaptcha}
+                className="shrink-0 text-[var(--sp-muted)]/50 hover:text-[var(--sp-ink)] transition-colors cursor-pointer"
+                title="换一张"
+              >
+                <RefreshCw size={14} strokeWidth={1.5} />
+              </button>
+              <input
+                type="text"
+                value={captcha}
+                onChange={(e) => setCaptcha(e.target.value)}
+                placeholder="输入验证码"
+                required={showCaptcha}
+                maxLength={4}
+                autoComplete="off"
+                tabIndex={showCaptcha ? 0 : -1}
+                className="flex-1 border-b-2 border-[var(--sp-hairline)] bg-transparent py-2.5 text-[var(--sp-ink)] outline-none transition-colors focus:border-[var(--sp-ink)] placeholder:text-[var(--sp-muted)]"
+              />
+            </div>
+          </motion.div>
+
           <p className="text-xs text-[var(--sp-muted)] leading-relaxed">
             提交后需等待管理员审核，审核通过后即可收到通知邮件。
             每封邮件底部都包含退订链接。
@@ -106,8 +193,10 @@ export function SubscribeDialog({ open, onClose }: SubscribeDialogProps) {
                 <Loader2 size={14} className="animate-spin" />
                 提交中...
               </>
-            ) : (
+            ) : showCaptcha ? (
               '确认订阅'
+            ) : (
+              '订阅'
             )}
           </button>
         </form>
